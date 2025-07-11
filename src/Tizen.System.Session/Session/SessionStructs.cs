@@ -49,4 +49,40 @@ namespace Tizen.System
         [FieldOffset(36)]
         private IntPtr NextUserPtr;
     }
+
+    [NativeStruct("subsession_event_info", Include = "sessiond.h", PkgConfig = "libsessiond")]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SubsessionAddUserEventInfoNative
+    {
+        public SessionEventType eventType;
+        public int sessionUID;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
+        public string AddUserPtr;
+    }
+
+    [NativeStruct("subsession_event_info", Include = "sessiond.h", PkgConfig = "libsessiond")]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SubsessionRemoveUserEventInfoNative
+    {
+        public SessionEventType eventType;
+        public int sessionUID;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
+        public string RemoveUserPtr;
+    }
+
+    [NativeStruct("subsession_event_info", Include = "sessiond.h", PkgConfig = "libsessiond")]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SubsessionSwitchUserEventInfoNative
+    {
+        public SessionEventType eventType;
+        public int sessionUID;
+
+        public Int64 switchID;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
+        public string PrevUserPtr;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)]
+        public string NextUserPtr;
+    }
 }

@@ -29,6 +29,15 @@ internal static partial class Interop
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void SubsessionEventCallback(IntPtr info, IntPtr cb_data);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void SubsessionAddUserEventCallback(SubsessionAddUserEventInfoNative info, IntPtr cb_data);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void SubsessionRemoveUserEventCallback(SubsessionRemoveUserEventInfoNative info, IntPtr cb_data);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void SubsessionSwitchUserEventCallback(SubsessionSwitchUserEventInfoNative info, IntPtr cb_data);
+
         [DllImport(Libraries.Session, EntryPoint = "subsession_add_user", CallingConvention = CallingConvention.Cdecl)]
         public static extern SessionError SubsessionAddUser(int session_uid, string user, SubsessionReplyCallback cb, IntPtr data);
 
@@ -50,11 +59,29 @@ internal static partial class Interop
         [DllImport(Libraries.Session, EntryPoint = "subsession_register_event_callback", CallingConvention = CallingConvention.Cdecl)]
         public static extern SessionError SubesssionRegisterEventCallback(int session_uid, SessionEventType event_bits, SubsessionEventCallback cb, IntPtr data);
 
+        [DllImport(Libraries.Session, EntryPoint = "subsession_register_event_callback", CallingConvention = CallingConvention.Cdecl)]
+        public static extern SessionError SubesssionRegisterAddUserEventCallback(int session_uid, SessionEventType event_bits, SubsessionAddUserEventCallback cb, IntPtr data);
+
+        [DllImport(Libraries.Session, EntryPoint = "subsession_register_event_callback", CallingConvention = CallingConvention.Cdecl)]
+        public static extern SessionError SubesssionRegisterRemoveUserEventCallback(int session_uid, SessionEventType event_bits, SubsessionRemoveUserEventCallback cb, IntPtr data);
+
+        [DllImport(Libraries.Session, EntryPoint = "subsession_register_event_callback", CallingConvention = CallingConvention.Cdecl)]
+        public static extern SessionError SubesssionRegisterSwitchUserEventCallback(int session_uid, SessionEventType event_bits, SubsessionSwitchUserEventCallback cb, IntPtr data);
+
         [DllImport(Libraries.Session, EntryPoint = "subsession_unregister_event_callback", CallingConvention = CallingConvention.Cdecl)]
         public static extern SessionError SubesssionUnregisterEventCallback(int session_uid, SessionEventType event_bits);
 
         [DllImport(Libraries.Session, EntryPoint = "subsession_event_wait_done", CallingConvention = CallingConvention.Cdecl)]
         public static extern SessionError SubsessionEventWaitDone(SubsessionEventInfoNative info);
+
+        [DllImport(Libraries.Session, EntryPoint = "subsession_event_wait_done", CallingConvention = CallingConvention.Cdecl)]
+        public static extern SessionError SubsessionSwitchUserEventWaitDone(SubsessionSwitchUserEventInfoNative info);
+
+        [DllImport(Libraries.Session, EntryPoint = "subsession_event_wait_done", CallingConvention = CallingConvention.Cdecl)]
+        public static extern SessionError SubsessionAddUserEventWaitDone(SubsessionAddUserEventInfoNative info);
+
+        [DllImport(Libraries.Session, EntryPoint = "subsession_event_wait_done", CallingConvention = CallingConvention.Cdecl)]
+        public static extern SessionError SubsessionRemoveUserEventWaitDone(SubsessionRemoveUserEventInfoNative info);
 
         [DllImport(Libraries.Libc, EntryPoint = "getuid", CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetUID();

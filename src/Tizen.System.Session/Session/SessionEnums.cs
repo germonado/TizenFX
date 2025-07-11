@@ -20,7 +20,8 @@ using System.ComponentModel;
 namespace Tizen.System
 {
     [Flags]
-    internal enum SessionEventType : int
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public enum SessionEventType : int
     {
         AddUserWait = 1 << 0,
         RemoveUserWait = 1 << 1,

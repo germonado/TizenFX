@@ -58,6 +58,9 @@ namespace Tizen.System
         private int _replyID = 0;
 
         private delegate void EventDelegate(IntPtr infoNative, IntPtr data);
+        private delegate void EventAddUserDelegate(SubsessionAddUserEventInfoNative infoNative, IntPtr data);
+        private delegate void EventRemoveUserDelegate(SubsessionRemoveUserEventInfoNative infoNative, IntPtr data);
+        private delegate void EventSwitchUserDelegate(SubsessionSwitchUserEventInfoNative infoNative, IntPtr data);
 
         static Session()
         {
@@ -299,6 +302,24 @@ namespace Tizen.System
             CheckError(ret, $"Interop failed to mark this client's event (of type {subsessionEventArgs.SessionInfo.eventType}) as finished");
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SubsessionSwitchUserEventMarkAsDone(SubsessionSwitchUserEventInfoNative SessionInfo)
+        {
+            SessionError ret = Interop.Session.SubsessionSwitchUserEventWaitDone(SessionInfo);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SubsessionAddUserEventMarkAsDone(SubsessionAddUserEventInfoNative SessionInfo)
+        {
+            SessionError ret = Interop.Session.SubsessionAddUserEventWaitDone(SessionInfo);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SubsessionRemoveUserEventMarkAsDone(SubsessionRemoveUserEventInfoNative SessionInfo)
+        {
+            SessionError ret = Interop.Session.SubsessionRemoveUserEventWaitDone(SessionInfo);
+        }
+
         private void OnAddUserWait(IntPtr infoNative, IntPtr data)
         {
             _addUserWaitHandler?.Invoke(this, new AddUserEventArgs(infoNative));
@@ -337,6 +358,48 @@ namespace Tizen.System
                     _addUserWaitHandler -= value;
                     if (_addUserWaitHandler == null)
                         UnregisterCallbackForEvent(SessionEventType.AddUserWait, ref _addUserWaitCB);
+                }
+            }
+        }
+
+        private void OnAddUserWaitEvent(SubsessionAddUserEventInfoNative infoNative, IntPtr data)
+        {
+            _addUserWaitEventHandler?.Invoke(this, infoNative);
+        }
+
+        private Interop.Session.SubsessionAddUserEventCallback _addUserWaitEventCB = null;
+
+        private event EventHandler<SubsessionAddUserEventInfoNative> _addUserWaitEventHandler = null;
+
+        private readonly object _addUserWaitEventLock = new object();
+
+        /// <summary>
+        /// Event to be invoked when a new subession user is successfully added to this session.
+        /// </summary>
+        /// <exception cref="ArgumentException">Session UID of this object is invalid</exception>
+        /// <exception cref="OutOfMemoryException">Out of memory</exception>
+        /// <exception cref="IOException">Internal error</exception>
+        /// <exception cref="UnauthorizedAccessException">Not permitted</exception>
+        /// <exception cref="NotSupportedException">Not supported</exception>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public event EventHandler<SubsessionAddUserEventInfoNative> AddUserWaitEvent
+        {
+            add
+            {
+                lock (_addUserWaitEventLock)
+                {
+                    if (_addUserWaitEventHandler == null)
+                        RegisterAddUserCallbackForEvent(SessionEventType.AddUserWait, ref _addUserWaitEventCB, OnAddUserWaitEvent);
+                    _addUserWaitEventHandler += value;
+                }
+            }
+            remove
+            {
+                lock (_addUserWaitEventLock)
+                {
+                    _addUserWaitEventHandler -= value;
+                    if (_addUserWaitEventHandler == null)
+                        UnregisterAddUserCallbackForEvent(SessionEventType.AddUserWait, ref _addUserWaitEventCB);
                 }
             }
         }
@@ -383,6 +446,48 @@ namespace Tizen.System
             }
         }
 
+        private void OnRemoveUserWaitEvent(SubsessionRemoveUserEventInfoNative infoNative, IntPtr data)
+        {
+            _removeUserWaitEventHandler?.Invoke(this, infoNative);
+        }
+
+        private Interop.Session.SubsessionRemoveUserEventCallback _removeUserWaitEventCB = null;
+
+        private event EventHandler<SubsessionRemoveUserEventInfoNative> _removeUserWaitEventHandler = null;
+
+        private readonly object _removeUserWaitEventLock = new object();
+
+        /// <summary>
+        /// Event to be invoked when a subession user is successfully removed from this session.
+        /// </summary>
+        /// <exception cref="ArgumentException">Session UID of this object is invalid</exception>
+        /// <exception cref="OutOfMemoryException">Out of memory</exception>
+        /// <exception cref="IOException">Internal error</exception>
+        /// <exception cref="UnauthorizedAccessException">Not permitted</exception>
+        /// <exception cref="NotSupportedException">Not supported</exception>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public event EventHandler<SubsessionRemoveUserEventInfoNative> RemoveUserWaitEvent
+        {
+            add
+            {
+                lock (_removeUserWaitEventLock)
+                {
+                    if (_removeUserWaitEventHandler == null)
+                        RegisterRemoveUserCallbackForEvent(SessionEventType.RemoveUserWait, ref _removeUserWaitEventCB, OnRemoveUserWaitEvent);
+                    _removeUserWaitEventHandler += value;
+                }
+            }
+            remove
+            {
+                lock (_removeUserWaitEventLock)
+                {
+                    _removeUserWaitEventHandler -= value;
+                    if (_removeUserWaitEventHandler == null)
+                        UnregisterRemoveUserCallbackForEvent(SessionEventType.RemoveUserWait, ref _removeUserWaitEventCB);
+                }
+            }
+        }
+
         private void OnSwitchUserWait(IntPtr infoNative, IntPtr data)
         {
             _switchUserWaitHandler?.Invoke(this, new SwitchUserWaitEventArgs(infoNative));
@@ -421,6 +526,48 @@ namespace Tizen.System
                     _switchUserWaitHandler -= value;
                     if (_switchUserWaitHandler == null)
                         UnregisterCallbackForEvent(SessionEventType.SwitchUserWait, ref _switchUserWaitCB);
+                }
+            }
+        }
+
+        private void OnSwitchUserWaitEvent(SubsessionSwitchUserEventInfoNative infoNative, IntPtr data)
+        {
+            _switchUserWaitEventHandler?.Invoke(this, infoNative);
+        }
+
+        private Interop.Session.SubsessionSwitchUserEventCallback _switchUserWaitEventCB = null;
+
+        private event EventHandler<SubsessionSwitchUserEventInfoNative> _switchUserWaitEventHandler = null;
+
+        private readonly object _switchUserWaitEventLock = new object();
+
+        /// <summary>
+        /// Event to be invoked when an existing subession user has begun switching to an active state.
+        /// </summary>
+        /// <exception cref="ArgumentException">Session UID of this object is invalid</exception>
+        /// <exception cref="OutOfMemoryException">Out of memory</exception>
+        /// <exception cref="IOException">Internal error</exception>
+        /// <exception cref="UnauthorizedAccessException">Not permitted</exception>
+        /// <exception cref="NotSupportedException">Not supported</exception>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public event EventHandler<SubsessionSwitchUserEventInfoNative> SwitchUserWaitEvent
+        {
+            add
+            {
+                lock (_switchUserWaitEventLock)
+                {
+                    if (_switchUserWaitEventHandler == null)
+                        RegisterSwitchUserCallbackForEvent(SessionEventType.SwitchUserWait, ref _switchUserWaitEventCB, OnSwitchUserWaitEvent);
+                    _switchUserWaitEventHandler += value;
+                }
+            }
+            remove
+            {
+                lock (_switchUserWaitEventLock)
+                {
+                    _switchUserWaitEventHandler -= value;
+                    if (_switchUserWaitEventHandler == null)
+                        UnregisterSwitchUserCallbackForEvent(SessionEventType.SwitchUserWait, ref _switchUserWaitEventCB);
                 }
             }
         }
@@ -467,6 +614,48 @@ namespace Tizen.System
             }
         }
 
+        private void OnSwitchUserCompletionEvent(SubsessionSwitchUserEventInfoNative infoNative, IntPtr data)
+        {
+            _switchUserCompletionEventHandler?.Invoke(this, infoNative);
+        }
+
+        private Interop.Session.SubsessionSwitchUserEventCallback _switchUserCompletionEventCB = null;
+
+        private event EventHandler<SubsessionSwitchUserEventInfoNative> _switchUserCompletionEventHandler = null;
+
+        private readonly object _switchUserCompletionEventLock = new object();
+
+        /// <summary>
+        /// Event to be invoked when an existing subession user is successfully switched to an acvite state.
+        /// </summary>
+        /// <exception cref="ArgumentException">Session UID of this object is invalid</exception>
+        /// <exception cref="OutOfMemoryException">Out of memory</exception>
+        /// <exception cref="IOException">Internal error</exception>
+        /// <exception cref="UnauthorizedAccessException">Not permitted</exception>
+        /// <exception cref="NotSupportedException">Not supported</exception>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public event EventHandler<SubsessionSwitchUserEventInfoNative> SwitchUserCompletedEvent
+        {
+            add
+            {
+                lock (_switchUserCompletionEventLock)
+                {
+                    if (_switchUserCompletionEventHandler == null)
+                        RegisterSwitchUserCallbackForEvent(SessionEventType.SwitchUserCompletion, ref _switchUserCompletionEventCB, OnSwitchUserCompletionEvent);
+                    _switchUserCompletionEventHandler += value;
+                }
+            }
+            remove
+            {
+                lock (_switchUserCompletionEventLock)
+                {
+                    _switchUserCompletionEventHandler -= value;
+                    if (_switchUserCompletionEventHandler == null)
+                        UnregisterSwitchUserCallbackForEvent(SessionEventType.SwitchUserCompletion, ref _switchUserCompletionEventCB);
+                }
+            }
+        }
+
         private void CheckError(SessionError ret, string msg)
         {
             if (ret == SessionError.None)
@@ -505,6 +694,54 @@ namespace Tizen.System
         }
 
         private void UnregisterCallbackForEvent(SessionEventType eventType, ref Interop.Session.SubsessionEventCallback eventCallback)
+        {
+            SessionError ret = Interop.Session.SubesssionUnregisterEventCallback(SessionUID, eventType);
+            CheckError(ret, $"Interop failed to unregister a callback for an event of type {eventType}");
+            eventCallback = null;
+        }
+
+        private void RegisterAddUserCallbackForEvent(SessionEventType eventType, ref Interop.Session.SubsessionAddUserEventCallback eventCallback,
+            EventAddUserDelegate delegateToSet)
+        {
+            eventCallback = new Interop.Session.SubsessionAddUserEventCallback(delegateToSet);
+            SessionError ret = Interop.Session.SubesssionRegisterAddUserEventCallback(SessionUID, eventType,
+                eventCallback, IntPtr.Zero);
+            CheckError(ret, $"Interop failed to register a callback for an event of type {eventType}");
+        }
+
+        private void RegisterRemoveUserCallbackForEvent(SessionEventType eventType, ref Interop.Session.SubsessionRemoveUserEventCallback eventCallback,
+            EventRemoveUserDelegate delegateToSet)
+        {
+            eventCallback = new Interop.Session.SubsessionRemoveUserEventCallback(delegateToSet);
+            SessionError ret = Interop.Session.SubesssionRegisterRemoveUserEventCallback(SessionUID, eventType,
+                eventCallback, IntPtr.Zero);
+            CheckError(ret, $"Interop failed to register a callback for an event of type {eventType}");
+        }
+
+        private void RegisterSwitchUserCallbackForEvent(SessionEventType eventType, ref Interop.Session.SubsessionSwitchUserEventCallback eventCallback,
+            EventSwitchUserDelegate delegateToSet)
+        {
+            eventCallback = new Interop.Session.SubsessionSwitchUserEventCallback(delegateToSet);
+            SessionError ret = Interop.Session.SubesssionRegisterSwitchUserEventCallback(SessionUID, eventType,
+                eventCallback, IntPtr.Zero);
+            CheckError(ret, $"Interop failed to register a callback for an event of type {eventType}");
+        }
+
+        private void UnregisterAddUserCallbackForEvent(SessionEventType eventType, ref Interop.Session.SubsessionAddUserEventCallback eventCallback)
+        {
+            SessionError ret = Interop.Session.SubesssionUnregisterEventCallback(SessionUID, eventType);
+            CheckError(ret, $"Interop failed to unregister a callback for an event of type {eventType}");
+            eventCallback = null;
+        }
+
+        private void UnregisterRemoveUserCallbackForEvent(SessionEventType eventType, ref Interop.Session.SubsessionRemoveUserEventCallback eventCallback)
+        {
+            SessionError ret = Interop.Session.SubesssionUnregisterEventCallback(SessionUID, eventType);
+            CheckError(ret, $"Interop failed to unregister a callback for an event of type {eventType}");
+            eventCallback = null;
+        }
+
+        private void UnregisterSwitchUserCallbackForEvent(SessionEventType eventType, ref Interop.Session.SubsessionSwitchUserEventCallback eventCallback)
         {
             SessionError ret = Interop.Session.SubesssionUnregisterEventCallback(SessionUID, eventType);
             CheckError(ret, $"Interop failed to unregister a callback for an event of type {eventType}");
